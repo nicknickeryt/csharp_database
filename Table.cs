@@ -1,4 +1,4 @@
-//TODO: remove, edit, sort, search better row and data handling, maxSize etc
+//TODO: remove, edit (select elements/rows), sort, search better row and data handling, maxSize etc
 namespace BazaDanych
 {
     class Table

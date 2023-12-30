@@ -1,4 +1,4 @@
-// TODO write to file, search, sort, idk
+// TODO write to file, search, sort, edit idk
 namespace BazaDanych
 {
     class Database
