@@ -17,6 +17,7 @@ namespace BazaDanych
             Name = name;
             DataType = dataType;
             MaxSize = maxSize;
+            if(dataType == DataType.BOOLEAN) MaxSize = 1;
 
         }
 
