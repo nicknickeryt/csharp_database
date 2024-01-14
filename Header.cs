@@ -5,6 +5,9 @@ namespace BazaDanych
     enum DataType {
         INT,
         STRING,
+        FLOAT,
+        DOUBLE,
+        BOOLEAN,
         UNKNOWN
     }
     class Header
