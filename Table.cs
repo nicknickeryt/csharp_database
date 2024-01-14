@@ -1,4 +1,5 @@
-//TODO: remove, edit (select elements/rows), sort, search better row and data handling, maxSize etc
+//TODO: edit (select elements/rows), sort, search, better row and data handling, maxSize etc
+//TODO PrintRowByHeaderValues, GetRowByHeaderValues
 using static BazaDanych.Utils;
 namespace BazaDanych
 {
@@ -306,7 +307,7 @@ namespace BazaDanych
         public Dictionary<Header, List<object>> GetRowByHeaderValue(Header header, object value)
         {
 
-        Dictionary<Header, List<object>> resultDict = new Dictionary<Header, List<object>>();
+            Dictionary<Header, List<object>> resultDict = new Dictionary<Header, List<object>>();
 
 
             foreach (List<object> row in rows)
@@ -319,7 +320,7 @@ namespace BazaDanych
                     foreach (object value1 in row)
                     {
                         Header currentHeader = GetHeaderAt(i);
-                        if(!resultDict.ContainsKey(currentHeader)) resultDict[currentHeader] = new List<object>();
+                        if (!resultDict.ContainsKey(currentHeader)) resultDict[currentHeader] = new List<object>();
                         resultDict[currentHeader].Add(value1);
                         i++;
                     }
@@ -328,6 +329,45 @@ namespace BazaDanych
 
             return resultDict;
 
+        }
+
+        public void RemoveRowByHeaderValue(Header header, object value)
+        {
+
+            List<List<object>> newRows = new List<List<object>>(rows);
+            foreach (List<object> row in rows)
+            {
+
+                if (row.Contains(value) && GetHeaderAt(row.IndexOf(value)) == header)
+                {
+                    newRows.Remove(row);
+                }
+            }
+
+            rows = newRows;
+
+
+        }
+
+        public void RemoveRowByHeaderValues(Dictionary<Header, object> headerValues)
+        {
+            List<List<object>> newRows = new List<List<object>>(rows);
+            foreach (List<object> row in rows)
+            {
+
+                int i = 0;
+                foreach (KeyValuePair<Header, object> kvp in headerValues)
+                {
+                    if (row.Contains(kvp.Value) && GetHeaderAt(row.IndexOf(kvp.Value)) == kvp.Key)
+                    {
+                        i++;
+                    }
+                }
+                    if(i == headerValues.Count()) newRows.Remove(row);
+
+            }
+
+            rows = newRows;
         }
 
     }
