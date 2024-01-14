@@ -90,6 +90,31 @@ namespace BazaDanych
             }
             
 
+            table.RemoveRowByHeaderValue(isStillWorking, true);
+
+            table.printTable();
+
+            table.AddRow(3, "Adrian", "Kowalik", true);
+
+            table.printTable();
+
+            table.RemoveRowByHeaderValue(surname, "Nowak");
+
+            table.printTable();
+            table.AddRow(4, "Anna", "Kowalik", true);
+
+            table.printTable();
+
+            Dictionary<Header, object> var = new Dictionary<Header, object>
+            {
+                { name, "Anna" },
+                { surname, "Kowalik" }
+            };
+
+            table.RemoveRowByHeaderValues(var);
+
+            table.printTable();
+
         }
     }
 }
