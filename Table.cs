@@ -1,4 +1,5 @@
 //TODO: remove, edit (select elements/rows), sort, search better row and data handling, maxSize etc
+using static BazaDanych.Utils;
 namespace BazaDanych
 {
     class Table
@@ -61,14 +62,15 @@ namespace BazaDanych
             Headers = headers;
         }
 
-        
+
         public Table(String name)
         {
             Name = name;
         }
 
         //FIXME ale to jest chamskie XD (add try catch etc.)
-        public Header GetHeaderAt(int index){
+        public Header GetHeaderAt(int index)
+        {
             return Headers[index];
         }
 
@@ -108,16 +110,17 @@ namespace BazaDanych
         }
 
         public void printHeader(bool brief = false)
-        {   
+        {
 
-            if(brief) {
-            Utils.printSpacer();
-            foreach (Header header in Headers)
+            if (brief)
             {
-                Console.WriteLine("Header: " + header.Name);
-            }
-            Utils.printSpacer();
-            return;
+                Utils.printSpacer();
+                foreach (Header header in Headers)
+                {
+                    Console.WriteLine("Header: " + header.Name);
+                }
+                Utils.printSpacer();
+                return;
             }
 
 
@@ -152,16 +155,180 @@ namespace BazaDanych
             int i = 0;
             foreach (List<object> list in rows)
             {
-                Utils.printSpacer();
+                printSpacer();
                 Console.WriteLine("Row: " + i);
+                int j = 0;
                 foreach (Object o in list)
                 {
-                    Console.WriteLine(Utils.getDataType(o) + "(" + o.ToString().Length + "/" + GetHeaderAt(i).MaxSize + "): " + o.ToString());
+
+                    Console.WriteLine(GetHeaderAt(j).Name +
+                    " [" +
+                    getDataType(o) +
+                    "(" +
+                    o.ToString().Length +
+                    "/" +
+                    GetHeaderAt(j).MaxSize +
+                    ")]: " +
+                    o.ToString());
+
+                    j++;
                 }
 
-                Utils.printSpacer();
+                printSpacer();
                 i++;
             }
         }
+
+        public void printTableName()
+        {
+            printLine("Table: " + Name);
+        }
+
+        public void printTableSpacer(int type)
+        {
+            switch (type)
+            {
+                case 1:
+                    print("┌");
+                    break;
+
+                case 2:
+                    print("├");
+                    break;
+
+                case 3:
+                    print("└");
+                    break;
+
+            }
+            int spacerWidth = Headers.Count * 23;
+
+            for (int i = 0; i < spacerWidth - 1; i++)
+            {
+                print("─");
+            }
+
+            switch (type)
+            {
+                case 1:
+                    Console.WriteLine("┐");
+                    break;
+
+                case 2:
+                    Console.WriteLine("┤");
+                    break;
+
+                case 3:
+                    Console.WriteLine("┘");
+                    break;
+
+            }
+        }
+
+        public void printTable()
+        {
+            printTableName();
+            printTableSpacer(1);
+            foreach (Header header in Headers)
+            {
+                print($"│ {header.Name,-20} ");
+            }
+            Console.WriteLine("│");
+
+            foreach (Header header in Headers)
+            {
+                string combinedData = header.DataType + "(" + header.MaxSize + ")";
+                print($"│ {combinedData,-20} ");
+            }
+
+            Console.WriteLine("│");
+
+            printTableSpacer(2);
+
+            foreach (List<object> row in rows)
+            {
+                int i = 0;
+                foreach (object value in row)
+                {
+                    print($"│ {value,-20} ");
+                    i++;
+                }
+                Console.WriteLine("│");
+            }
+
+            printTableSpacer(3);
+        }
+
+
+        public void PrintRowByHeaderValue(Header header, object value)
+        {
+
+            printLine("Resulting rows with value '" + value.ToString() + "' in header '" + header.Name + "' in table '" + Name + "'");
+
+            printTableSpacer(1);
+            foreach (Header header1 in Headers)
+            {
+                print($"│ {header1.Name,-20} ");
+            }
+            Console.WriteLine("│");
+
+            foreach (Header header1 in Headers)
+            {
+                string combinedData = header1.DataType + "(" + header1.MaxSize + ")";
+                print($"│ {combinedData,-20} ");
+            }
+
+            Console.WriteLine("│");
+
+            printTableSpacer(2);
+
+            foreach (List<object> row in rows)
+            {
+                int i = 0;
+
+                if (row.Contains(value) && GetHeaderAt(row.IndexOf(value)) == header)
+                {
+
+                    foreach (object value1 in row)
+                    {
+
+                        print($"│ {value1,-20} ");
+                        i++;
+                    }
+                    Console.WriteLine("│");
+                }
+            }
+
+            printTableSpacer(3);
+
+        }
+
+        public Dictionary<Header, List<object>> GetRowByHeaderValue(Header header, object value)
+        {
+
+        Dictionary<Header, List<object>> resultDict = new Dictionary<Header, List<object>>();
+
+
+            foreach (List<object> row in rows)
+            {
+                int i = 0;
+
+                if (row.Contains(value) && GetHeaderAt(row.IndexOf(value)) == header)
+                {
+
+                    foreach (object value1 in row)
+                    {
+                        Header currentHeader = GetHeaderAt(i);
+                        if(!resultDict.ContainsKey(currentHeader)) resultDict[currentHeader] = new List<object>();
+                        resultDict[currentHeader].Add(value1);
+                        i++;
+                    }
+                }
+            }
+
+            return resultDict;
+
+        }
+
     }
 }
