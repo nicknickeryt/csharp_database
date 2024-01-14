@@ -21,7 +21,7 @@ namespace BazaDanych
             if (Headers.Count != values.Count())
             {
 
-                Utils.printDebug("wrong amount of data.");
+                Utils.printDebug("Wrong amount of data.");
                 return -1;
             }
 
@@ -31,7 +31,7 @@ namespace BazaDanych
             {
                 if (Headers[i].DataType != Utils.getDataType(value))
                 {
-                    Utils.printDebug("wrong datatype.");
+                    Utils.printDebug("Wrong datatype.");
                     return -1;
                 }
                 i++;
