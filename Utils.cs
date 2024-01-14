@@ -43,7 +43,10 @@ namespace BazaDanych
             if(isDebugEnabled) Console.WriteLine("Debug: " + str);
         }
         public static void print(string str) {
-            Console.WriteLine("" + str);
+            Console.Write(str);
+        }
+        public static void printLine(string str) {
+            Console.WriteLine(str);
         }
 
     }
