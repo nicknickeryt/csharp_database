@@ -23,7 +23,7 @@ namespace BazaDanych
             if (Headers.Count != values.Count())
             {
 
-                Utils.printDebug("Wrong amount of data.");
+                printDebug("Wrong amount of data.");
                 return -1;
             }
 
@@ -31,9 +31,9 @@ namespace BazaDanych
             int i = 0;
             foreach (Object value in values)
             {
-                if (Headers[i].DataType != Utils.getDataType(value))
+                if (Headers[i].DataType != getDataType(value))
                 {
-                    Utils.printDebug("Wrong datatype.");
+                    printDebug("Wrong datatype.");
                     return -1;
                 }
                 i++;
@@ -75,25 +75,42 @@ namespace BazaDanych
             return Headers[index];
         }
 
-        private void initColumnHeader(Header header)
+        private void initColumnHeader(Header header, object defaultValue)
         {
             columns.Add(header, new List<object>());
+
+            int i = 0;
+            foreach(object column in columns){
+                foreach(List<object> row in rows) {
+                    if(row.ElementAtOrDefault(i) == null){
+                        if(defaultValue == null){
+                            row.Insert(i, "NULL");
+                        }
+                        else{
+                            row.Insert(i, defaultValue);
+                        }
+                    }
+                }
+                i++;
+            }
+
         }
         private void deinitColumnHeader(Header header)
         {
             columns.Remove(header);
         }
 
-        public int addHeader(Header header)
+        public int addHeader(Header header, object defaultValue = null)
         {
             Headers.Add(header);
-            initColumnHeader(header);
+            initColumnHeader(header, defaultValue);
             return 0;
         }
-        public int addNewHeader(String name, DataType dataType, int maxSize)
+        public int addNewHeader(String name, DataType dataType, int maxSize, object defaultValue = null)
         {
             Header header = new Header(name, dataType, maxSize);
-            initColumnHeader(header);
+            Headers.Add(header);
+            initColumnHeader(header, defaultValue);
             return 0;
         }
         public int removeHeader(String name)
@@ -109,23 +126,46 @@ namespace BazaDanych
             }
             return 1;
         }
+        public int removeHeader(Header header)
+        {
+            List<List<object>> newRows = new List<List<object>>(rows);
+            int j = 0;
+            foreach(List<object> row in rows) {
+            List<object> newRow = new List<object>(row);
+                int i = 0;
+                foreach(object o in row) {
+                    if(GetHeaderAt(i) == header){
+                        newRow.Remove(o);
+                    }
+                    i++;
+                }
+                newRows[j] = newRow;
+                j++;
+            }
+            rows = newRows;
+
+            Headers.Remove(header);
+            columns.Remove(header);
+            
+            return 1;
+        }
 
         public void printHeader(bool brief = false)
         {
 
             if (brief)
             {
-                Utils.printSpacer();
+                printSpacer();
                 foreach (Header header in Headers)
                 {
                     Console.WriteLine("Header: " + header.Name);
                 }
-                Utils.printSpacer();
+                printSpacer();
                 return;
             }
 
 
-            Utils.printSpacer();
+            printSpacer();
             int i = 0;
             foreach (Header header in Headers)
             {
@@ -135,49 +175,7 @@ namespace BazaDanych
                 Console.WriteLine("MaxSize: " + header.MaxSize);
                 i++;
             }
-            Utils.printSpacer();
-        }
-
-        public void printColumns()
-        {
-            foreach (Header header in Headers)
-            {
-                Utils.printSpacer();
-                Console.WriteLine("Header: " + header.Name);
-                Utils.printSpacer();
-                foreach (Object o in columns[header])
-                {
-                    Console.WriteLine(Utils.getDataType(o) + "(" + o.ToString().Length + "/" + header.MaxSize + "): " + o.ToString());
-                }
-            }
-        }
-        public void printRows()
-        {
-            int i = 0;
-            foreach (List<object> list in rows)
-            {
-                printSpacer();
-                Console.WriteLine("Row: " + i);
-                int j = 0;
-                foreach (Object o in list)
-                {
-
-                    Console.WriteLine(GetHeaderAt(j).Name +
-                    " [" +
-                    getDataType(o) +
-                    "(" +
-                    o.ToString().Length +
-                    "/" +
-                    GetHeaderAt(j).MaxSize +
-                    ")]: " +
-                    o.ToString());
-
-                    j++;
-                }
-
-                printSpacer();
-                i++;
-            }
+            printSpacer();
         }
 
         public void printTableName()
