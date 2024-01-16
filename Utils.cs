@@ -39,6 +39,12 @@ namespace BazaDanych
             return DataType.UNKNOWN;
         }   
 
+        public static bool checkDataType(Header header, object value){
+            if(getDataType(value) == header.DataType) return true;
+            printDebug("Wrong data type!");
+            return false;
+        }
+
         public static void printDebug(string str) {
             if(isDebugEnabled) Console.WriteLine("Debug: " + str);
         }
