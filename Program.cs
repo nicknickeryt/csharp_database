@@ -123,6 +123,42 @@ namespace BazaDanych
 
             table.printTable();
 
+            Header header = table.GetHeaderByName("hasSuperPowers");
+
+            //attempt to add wrogn data type
+            table.SetElementByHeaderValue(header, "WARTOSC domyslna", isStillWorking, "WARTOSC nowa");
+            
+            table.printTable();
+
+            //now add properly
+            table.SetElementByHeaderValue(header, "WARTOSC domyslna", header, true);
+            
+            table.printTable();
+
+            Dictionary<Header, object> var1 = new Dictionary<Header, object>
+            {
+                { name, "Adrian" },
+                { isStillWorking, true }
+            };
+
+            Dictionary<Header, List<object>> resultsEmployees2 = table.GetRowByHeaderValues(var1);
+
+            foreach(object o in resultsEmployees2[name]){
+                printLine(o.ToString());
+            }
+
+            table.printTable();
+
+            table.AddRow(3, "Adrian", false, false);
+
+            table.printTable();
+
+             Dictionary<Header, List<object>> resultsEmployees3 = table.GetRowByHeaderValues(var1);
+
+            foreach(object o in resultsEmployees3[name]){
+                printLine(o.ToString());
+            }
+
         }
     }
 }
