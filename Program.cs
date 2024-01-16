@@ -115,6 +115,14 @@ namespace BazaDanych
 
             table.printTable();
 
+            table.removeHeader(surname);
+
+            table.printTable();
+
+            table.addNewHeader("hasSuperPowers", DataType.BOOLEAN, 1, "WARTOSC domyslna");
+
+            table.printTable();
+
         }
     }
 }
