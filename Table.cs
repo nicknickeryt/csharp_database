@@ -1,5 +1,4 @@
-//TODO: edit (select elements/rows), sort, search, better row and data handling, maxSize etc
-//TODO PrintRowByHeaderValues, GetRowByHeaderValues
+//TODO: edit (select elements/rows), sort, better row and data handling
 using System.Runtime.InteropServices.Marshalling;
 using static BazaDanych.Utils;
 namespace BazaDanych
@@ -7,8 +6,55 @@ namespace BazaDanych
     class Table
     {
 
-        private Dictionary<Header, List<Object>> columns = new Dictionary<Header, List<Object>>();
+        public enum Direction
+        {
+            ASC,
+            DESC
+        }
+
+        //private Dictionary<Header, List<Object>> columns = new Dictionary<Header, List<Object>>();
         private List<List<Object>> rows = new List<List<Object>>();
+
+
+        private List<Object> getColumn(Header header)
+        {
+            //TODO: MUDI byc sprawdzenie tu i wszedzie indziej czy podany HEADER istnieje w aktualnej tabeli, w liscie headerow
+
+            List<Object> column = new List<Object>();
+            int i = Headers.IndexOf(header);
+
+            foreach (List<Object> row in rows)
+            {
+                column.Add(row[i]);
+            }
+
+            return column;
+
+        }
+
+
+        public void sortByHeader(Header header, Direction direction)
+        {
+            List<Object> sortId = getColumn(header);
+
+            
+            switch (direction)
+            {
+                case Direction.ASC:
+                    sortId = sortId.OrderBy(x => x).ToList();
+                    break;
+                case Direction.DESC:
+                    sortId = sortId.OrderByDescending(x => x).ToList();
+                    break;
+
+            }
+        
+            List<List<Object>> newRows = new List<List<Object>>();
+
+            rows = rows.OrderBy(x => x[Headers.IndexOf(header)]).ToList();
+
+
+        }
 
         public string Name
         {
@@ -42,13 +88,6 @@ namespace BazaDanych
 
             i = 0;
             rows.Add(values.ToList());
-            foreach (Header header in Headers)
-            {
-                List<object> list = columns[header];
-                list.Add(values[i]);
-                columns[header] = list;
-                i++;
-            }
 
             return 0;
 
@@ -86,10 +125,16 @@ namespace BazaDanych
 
         private void initColumnHeader(Header header, object defaultValue)
         {
-            columns.Add(header, new List<object>());
+
+            if (checkDataType(header, defaultValue))
+            {
+                return;
+            }
 
             int i = 0;
-            foreach (object column in columns)
+
+
+            foreach (Header heade1 in Headers)
             {
                 foreach (List<object> row in rows)
                 {
@@ -111,7 +156,15 @@ namespace BazaDanych
         }
         private void deinitColumnHeader(Header header)
         {
-            columns.Remove(header);
+            int i = 0;
+            foreach (List<object> row in rows)
+            {
+                if (Headers[i] == header)
+                {
+                    row[i] = null;
+                }
+                i++;
+            }
         }
 
         public int addHeader(Header header, object defaultValue = null)
@@ -162,7 +215,6 @@ namespace BazaDanych
             rows = newRows;
 
             Headers.Remove(header);
-            columns.Remove(header);
 
             return 1;
         }
@@ -361,19 +413,20 @@ namespace BazaDanych
                         i++;
                     }
                 }
-                
+
                 if (i == headerValues.Count())
                 {
-                        for(int j = 0; j < Headers.Count(); j++) {
+                    for (int j = 0; j < Headers.Count(); j++)
+                    {
                         Header currentHeader = GetHeaderAt(j);
 
-                        if(!resultDict.ContainsKey(currentHeader)) resultDict[currentHeader] = new List<object>();
-                        
+                        if (!resultDict.ContainsKey(currentHeader)) resultDict[currentHeader] = new List<object>();
+
                         resultDict[currentHeader].Add(row[j]);
-                        }
-                        
                     }
-                
+
+                }
+
 
             }
 
@@ -384,7 +437,7 @@ namespace BazaDanych
         {
 
             List<List<object>> newRows = new List<List<object>>(rows);
-            foreach (List<object> row in rows) 
+            foreach (List<object> row in rows)
             {
 
                 if (row.Contains(value) && GetHeaderAt(row.IndexOf(value)) == header)
@@ -436,6 +489,36 @@ namespace BazaDanych
             return 1;
 
 
+        }
+        public int SetElementByHeaderValues(Dictionary<Header, object> headerValues, Dictionary<Header, object> destHeaderValues)
+        {
+            List<List<object>> newRows = new List<List<object>>(rows);
+            foreach (List<object> row in rows)
+            {
+                List<object> newRow = new List<object>(row);
+                int i = 0;
+                foreach (KeyValuePair<Header, object> kvp in headerValues)
+                {
+                    if (row.Contains(kvp.Value) && GetHeaderAt(row.IndexOf(kvp.Value)) == kvp.Key)
+                    {
+                        foreach (KeyValuePair<Header, object> kvp1 in destHeaderValues)
+                        {
+                            Header currentDestHeader = kvp1.Key;
+                            newRow[Headers.IndexOf(currentDestHeader)] = kvp1.Value;
+                        }
+                        i++;
+                    }
+                }
+                if (i == headerValues.Count())
+                {
+                    newRows[newRows.IndexOf(row)] = newRow;
+                }
+
+            }
+
+            rows = newRows;
+
+            return 1;
         }
 
 

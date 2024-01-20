@@ -48,7 +48,6 @@ namespace BazaDanych
 
 
 
-
             Header id1 = new Header("ID", DataType.INT, 10);
             Header nazwa = new Header("Model", DataType.STRING, 16);
             Header year = new Header("Rok produkcji", DataType.INT, 4);
@@ -68,12 +67,25 @@ namespace BazaDanych
             table1.AddRow(8, "PZL-Świdnik M-3", 2013);
 
             table1.AddRow(9, "Boeing 737", 1999);
-            table1.AddRow(10, "PZL-23 Sokół", 2004);
+            table1.AddRow(3, "PZL-23 Sokół", 2004);
 
 
             table1.printTable();
 
-            table1.PrintRowByHeaderValue(year, 2004);
+
+            table1.sortByHeader(nazwa, Table.Direction.ASC);
+
+            table1.printTable();
+
+            table1.sortByHeader(id1, Table.Direction.DESC);
+
+            table1.printTable();
+                        
+            table1.sortByHeader(year, Table.Direction.ASC);
+
+            table1.printTable();
+            
+        /*table1.PrintRowByHeaderValue(year, 2004);
 
             Dictionary<Header, List<object>> results = table1.GetRowByHeaderValue(year, 2004);
 
@@ -158,6 +170,7 @@ namespace BazaDanych
             foreach(object o in resultsEmployees3[name]){
                 printLine(o.ToString());
             }
+            */
 
         }
     }
