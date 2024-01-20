@@ -1,4 +1,5 @@
 //TODO: edit (select elements/rows), sort, better row and data handling
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices.Marshalling;
 using static BazaDanych.Utils;
 namespace BazaDanych
@@ -19,10 +20,13 @@ namespace BazaDanych
         private List<Object> getColumn(Header header)
         {
             //TODO: MUDI byc sprawdzenie tu i wszedzie indziej czy podany HEADER istnieje w aktualnej tabeli, w liscie headerow
-
+            if (!Headers.Contains(header))
+            {
+                return null;
+            }
             List<Object> column = new List<Object>();
             int i = Headers.IndexOf(header);
-
+            
             foreach (List<Object> row in rows)
             {
                 column.Add(row[i]);
@@ -35,6 +39,10 @@ namespace BazaDanych
 
         public void sortByHeader(Header header, Direction direction)
         {
+            if(!Headers.Contains(header))
+            {
+                return;
+            }
             List<Object> sortId = getColumn(header);
 
             
@@ -156,6 +164,7 @@ namespace BazaDanych
         }
         private void deinitColumnHeader(Header header)
         {
+            if (!Headers.Contains(header)) return;
             int i = 0;
             foreach (List<object> row in rows)
             {
@@ -169,12 +178,14 @@ namespace BazaDanych
 
         public int addHeader(Header header, object defaultValue = null)
         {
+
             Headers.Add(header);
             initColumnHeader(header, defaultValue);
             return 0;
         }
         public int addNewHeader(String name, DataType dataType, int maxSize, object defaultValue = null)
         {
+
             Header header = new Header(name, dataType, maxSize);
             Headers.Add(header);
             initColumnHeader(header, defaultValue);
@@ -182,6 +193,7 @@ namespace BazaDanych
         }
         public int removeHeader(String name)
         {
+
             foreach (Header header in Headers)
             {
                 if (header.Name == name)
@@ -195,6 +207,7 @@ namespace BazaDanych
         }
         public int removeHeader(Header header)
         {
+            if (!Headers.Contains(header)) return -1;
             List<List<object>> newRows = new List<List<object>>(rows);
             int j = 0;
             foreach (List<object> row in rows)
@@ -330,7 +343,11 @@ namespace BazaDanych
 
         public void PrintRowByHeaderValue(Header header, object value)
         {
-
+            if (!Headers.Contains(header))
+            {
+                printLine("Head not found."); 
+                return; 
+            }
             printLine("Resulting rows with value '" + value.ToString() + "' in header '" + header.Name + "' in table '" + Name + "'");
 
             printTableSpacer(1);
@@ -373,7 +390,10 @@ namespace BazaDanych
 
         public Dictionary<Header, List<object>> GetRowByHeaderValue(Header header, object value)
         {
-
+            if (!Headers.Contains(header))
+            {
+                return null;
+            }
             Dictionary<Header, List<object>> resultDict = new Dictionary<Header, List<object>>();
 
 
@@ -400,6 +420,13 @@ namespace BazaDanych
 
         public Dictionary<Header, List<object>> GetRowByHeaderValues(Dictionary<Header, object> headerValues)
         {
+            foreach(KeyValuePair<Header, object> kvp in headerValues)
+            {
+                if (!Headers.Contains(kvp.Key))
+                {
+                    return null;
+                }
+            }
             Dictionary<Header, List<object>> resultDict = new Dictionary<Header, List<object>>();
 
             foreach (List<object> row in rows)
@@ -436,6 +463,10 @@ namespace BazaDanych
         public void RemoveRowByHeaderValue(Header header, object value)
         {
 
+            if (!Headers.Contains(header))
+            {
+                return;
+            }
             List<List<object>> newRows = new List<List<object>>(rows);
             foreach (List<object> row in rows)
             {
@@ -453,6 +484,14 @@ namespace BazaDanych
 
         public void RemoveRowByHeaderValues(Dictionary<Header, object> headerValues)
         {
+            foreach (KeyValuePair<Header, object> kvp in headerValues)
+            {
+                if (!Headers.Contains(kvp.Key))
+                {
+                    return;
+                }
+            }
+
             List<List<object>> newRows = new List<List<object>>(rows);
             foreach (List<object> row in rows)
             {
@@ -474,6 +513,11 @@ namespace BazaDanych
 
         public int SetElementByHeaderValue(Header header, object value, Header destHeader, object newValue)
         {
+                if (!Headers.Contains(header))
+                {
+                return -1;
+                }
+
             List<List<object>> newRows = new List<List<object>>(rows);
             foreach (List<object> row in rows)
             {
@@ -492,6 +536,13 @@ namespace BazaDanych
         }
         public int SetElementByHeaderValues(Dictionary<Header, object> headerValues, Dictionary<Header, object> destHeaderValues)
         {
+            foreach (KeyValuePair<Header, object> kvp in headerValues)
+            {
+                if (!Headers.Contains(kvp.Key))
+                {
+                    return -1;
+                }
+            }
             List<List<object>> newRows = new List<List<object>>(rows);
             foreach (List<object> row in rows)
             {

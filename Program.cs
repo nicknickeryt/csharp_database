@@ -32,7 +32,7 @@ namespace BazaDanych
             database.AddTable(table);
 
 
-            
+            //testy//
 
             table.AddRow(1, "Jan", "Kowalski", true);
 
@@ -62,7 +62,7 @@ namespace BazaDanych
 
             table1.AddRow(1, "Antonov 223", 2004);
 
-            table1.AddRow(2, "Ił-15", 1983);
+            table1.AddRow(9, "Ił-15", 1983);
 
             table1.AddRow(8, "PZL-Świdnik M-3", 2013);
 
@@ -84,93 +84,96 @@ namespace BazaDanych
             table1.sortByHeader(year, Table.Direction.ASC);
 
             table1.printTable();
-            
-        /*table1.PrintRowByHeaderValue(year, 2004);
 
-            Dictionary<Header, List<object>> results = table1.GetRowByHeaderValue(year, 2004);
+            table1.sortByHeader(id, Table.Direction.DESC);
 
-            Dictionary<Header, List<object>> resultsEmployees = table.GetRowByHeaderValue(isStillWorking, true);
+            table1.printTable();
+            /*table1.PrintRowByHeaderValue(year, 2004);
 
-            table.PrintRowByHeaderValue(isStillWorking, true);
-            
-            foreach(object o in resultsEmployees[name]){
-                printLine(o.ToString());
-            }
+                Dictionary<Header, List<object>> results = table1.GetRowByHeaderValue(year, 2004);
 
-            foreach(object o in results[nazwa]){
-                printLine(o.ToString());
-            }
-            
+                Dictionary<Header, List<object>> resultsEmployees = table.GetRowByHeaderValue(isStillWorking, true);
 
-            table.RemoveRowByHeaderValue(isStillWorking, true);
+                table.PrintRowByHeaderValue(isStillWorking, true);
 
-            table.printTable();
+                foreach(object o in resultsEmployees[name]){
+                    printLine(o.ToString());
+                }
 
-            table.AddRow(3, "Adrian", "Kowalik", true);
+                foreach(object o in results[nazwa]){
+                    printLine(o.ToString());
+                }
 
-            table.printTable();
 
-            table.RemoveRowByHeaderValue(surname, "Nowak");
+                table.RemoveRowByHeaderValue(isStillWorking, true);
 
-            table.printTable();
-            table.AddRow(4, "Anna", "Kowalik", true);
+                table.printTable();
 
-            table.printTable();
+                table.AddRow(3, "Adrian", "Kowalik", true);
 
-            Dictionary<Header, object> var = new Dictionary<Header, object>
-            {
-                { name, "Anna" },
-                { surname, "Kowalik" }
-            };
+                table.printTable();
 
-            table.RemoveRowByHeaderValues(var);
+                table.RemoveRowByHeaderValue(surname, "Nowak");
 
-            table.printTable();
+                table.printTable();
+                table.AddRow(4, "Anna", "Kowalik", true);
 
-            table.removeHeader(surname);
+                table.printTable();
 
-            table.printTable();
+                Dictionary<Header, object> var = new Dictionary<Header, object>
+                {
+                    { name, "Anna" },
+                    { surname, "Kowalik" }
+                };
 
-            table.addNewHeader("hasSuperPowers", DataType.BOOLEAN, 1, "WARTOSC domyslna");
+                table.RemoveRowByHeaderValues(var);
 
-            table.printTable();
+                table.printTable();
 
-            Header header = table.GetHeaderByName("hasSuperPowers");
+                table.removeHeader(surname);
 
-            //attempt to add wrogn data type
-            table.SetElementByHeaderValue(header, "WARTOSC domyslna", isStillWorking, "WARTOSC nowa");
-            
-            table.printTable();
+                table.printTable();
 
-            //now add properly
-            table.SetElementByHeaderValue(header, "WARTOSC domyslna", header, true);
-            
-            table.printTable();
+                table.addNewHeader("hasSuperPowers", DataType.BOOLEAN, 1, "WARTOSC domyslna");
 
-            Dictionary<Header, object> var1 = new Dictionary<Header, object>
-            {
-                { name, "Adrian" },
-                { isStillWorking, true }
-            };
+                table.printTable();
 
-            Dictionary<Header, List<object>> resultsEmployees2 = table.GetRowByHeaderValues(var1);
+                Header header = table.GetHeaderByName("hasSuperPowers");
 
-            foreach(object o in resultsEmployees2[name]){
-                printLine(o.ToString());
-            }
+                //attempt to add wrogn data type
+                table.SetElementByHeaderValue(header, "WARTOSC domyslna", isStillWorking, "WARTOSC nowa");
 
-            table.printTable();
+                table.printTable();
 
-            table.AddRow(3, "Adrian", false, false);
+                //now add properly
+                table.SetElementByHeaderValue(header, "WARTOSC domyslna", header, true);
 
-            table.printTable();
+                table.printTable();
 
-             Dictionary<Header, List<object>> resultsEmployees3 = table.GetRowByHeaderValues(var1);
+                Dictionary<Header, object> var1 = new Dictionary<Header, object>
+                {
+                    { name, "Adrian" },
+                    { isStillWorking, true }
+                };
 
-            foreach(object o in resultsEmployees3[name]){
-                printLine(o.ToString());
-            }
-            */
+                Dictionary<Header, List<object>> resultsEmployees2 = table.GetRowByHeaderValues(var1);
+
+                foreach(object o in resultsEmployees2[name]){
+                    printLine(o.ToString());
+                }
+
+                table.printTable();
+
+                table.AddRow(3, "Adrian", false, false);
+
+                table.printTable();
+
+                 Dictionary<Header, List<object>> resultsEmployees3 = table.GetRowByHeaderValues(var1);
+
+                foreach(object o in resultsEmployees3[name]){
+                    printLine(o.ToString());
+                }
+                */
 
         }
     }
