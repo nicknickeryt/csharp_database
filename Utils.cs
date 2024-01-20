@@ -32,7 +32,7 @@ namespace BazaDanych
             else {
                 printDebug("DataType not supported. Supported DataTypes:");
                 foreach (string dataType in Enum.GetNames(typeof(DataType))){
-                    print(dataType);
+                    printLine(dataType);
 
                 }
             }
