@@ -1,7 +1,23 @@
-//TODO: edit (select elements/rows), sort, better row and data handling
-using static BazaDanych.Utils;
-namespace BazaDanych
+using static SimpleDatabase.Utils;
+using System.Text.Json;
+
+
+namespace SimpleDatabase
 {
+
+    /* Table
+     *
+     * This is the crucial class for SimpleDatabse. It manages almost all the stuff going on with tables
+     *
+     * These include:
+     *  creating, removing a table with various arguments
+     *  printing tables
+     *  sorting rows
+     *  table row management: add, remove & edit
+     *  writing tables to CSV or JSON
+     *
+     */
+
     class Table
     {
 
@@ -11,20 +27,65 @@ namespace BazaDanych
             DESC
         }
 
-        private List<List<Object>> rows = new List<List<Object>>();
+        private JsonSerializerOptions opts = new JsonSerializerOptions() { WriteIndented = true, IncludeFields = true };
+
+        public string Name
+        {
+            get;
+            set;
+        }
 
 
-        private List<Object> getColumn(Header header)
+        public List<Header> Headers
+        {
+            get;
+            set;
+        }
+
+        public List<List<object>> Rows
+        {
+            get;
+            set;
+        }
+
+
+        // Costructors
+        public Table(string name, List<Header> headers)
+        {
+            Name = name;
+            Headers = headers;
+            Rows = new List<List<object>>();
+        }
+
+
+        public Table(string name)
+        {
+            Name = name;
+            Rows = new List<List<object>>();
+            Headers = new List<Header>();
+        }
+
+        public Table()
+        {
+            Name = "NULL";
+            Headers = new List<Header>();
+            Rows = new List<List<object>>();
+        }
+
+
+        // Gets the whole column by header. That is the replacement of SimepleDatabase legacy setup with columns & rows declared separately.
+        //  Returns the list of objects in the given column.
+        public List<object> getColumn(Header header)
         {
             if (!Headers.Contains(header))
             {
-                printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                printDebugError(ErrorType.HEADER);
                 return null;
             }
-            List<Object> column = new List<Object>();
+            List<object> column = new List<object>();
             int i = Headers.IndexOf(header);
 
-            foreach (List<Object> row in rows)
+            foreach (List<object> row in Rows)
             {
                 column.Add(row[i]);
             }
@@ -34,13 +95,14 @@ namespace BazaDanych
         }
 
 
+        // Sorts rows by header & direction.
         public void sortByHeader(Header header, Direction direction)
         {
             if (!Headers.Contains(header))
             {
                 return;
             }
-            List<Object> sortId = getColumn(header);
+            List<object> sortId = getColumn(header);
 
 
             switch (direction)
@@ -54,71 +116,59 @@ namespace BazaDanych
 
             }
 
-            List<List<Object>> newRows = new List<List<Object>>();
+            List<List<object>> newRows = new List<List<object>>();
 
-            rows = rows.OrderBy(x => x[Headers.IndexOf(header)]).ToList();
+            Rows = Rows.OrderBy(x => x[Headers.IndexOf(header)]).ToList();
 
 
         }
 
-        public string Name
-        {
-            get;
-            set;
-        }
 
-        public List<Header> Headers = new List<Header>();
-
-        public int AddRow(params Object[] values)
+        // Adds a row.
+        public int AddRow(params object[] values)
         {
             if (Headers.Count != values.Count())
             {
-
-                printDebug(getErrMsg(ErrorType.WRONG_AMOUNT_DATA));
+                printDebugError(ErrorType.AMOUNT);
                 return -1;
             }
 
 
             int i = 0;
-            foreach (Object value in values)
+            foreach (object value in values)
             {
-                if (!checkDataType(Headers[i], value))
+                if (!checkDataType(GetHeaderAt(i), value))
                 {
-                    printDebug(getErrMsg(ErrorType.WRONG_DATA_TYPE));
+                    printDebugError(ErrorType.TYPE);
+                    return -1;
+                }
+                if (getDataType(value) != DataType.BOOLEAN && value.ToString().Length > GetHeaderAt(i).MaxSize)
+                {
+                    printDebugError(ErrorType.SIZE);
                     return -1;
                 }
                 i++;
             }
 
-            i = 0;
-            rows.Add(values.ToList());
+            Rows.Add(values.ToList());
 
             return 0;
 
         }
+
+
         public int Size()
         {
-            return rows.Count;
+            return Rows.Count;
         }
 
-        public Table(String name, List<Header> headers)
-        {
-            Name = name;
-            Headers = headers;
-        }
-
-
-        public Table(String name)
-        {
-            Name = name;
-        }
-
-
+        // Gets a header at a given index.
+        //  This is helpful to determine which header is the current one while looping over row.
         public Header GetHeaderAt(int index)
         {
             if (index >= Headers.Count())
             {
-                printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                printDebugError(ErrorType.HEADER);
                 return null;
             }
             return Headers[index];
@@ -130,24 +180,22 @@ namespace BazaDanych
                 if (header.Name == name) return header;
             }
 
-            printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+            printDebugError(ErrorType.HEADER);
             return null;
         }
 
+        // Initializes row/column headers when adding a row.
         private void initColumnHeader(Header header, object defaultValue)
         {
 
-            if (checkDataType(header, defaultValue))
-            {
-                return;
-            }
+            if (defaultValue != null && !checkDataType(header, defaultValue)) return;
 
             int i = 0;
 
 
-            foreach (Header heade1 in Headers)
+            foreach (Header header1 in Headers)
             {
-                foreach (List<object> row in rows)
+                foreach (List<object> row in Rows)
                 {
                     if (row.ElementAtOrDefault(i) == null)
                     {
@@ -165,11 +213,12 @@ namespace BazaDanych
             }
 
         }
+
         private void deinitColumnHeader(Header header)
         {
             if (!Headers.Contains(header)) return;
             int i = 0;
-            foreach (List<object> row in rows)
+            foreach (List<object> row in Rows)
             {
                 if (Headers[i] == header)
                 {
@@ -179,6 +228,7 @@ namespace BazaDanych
             }
         }
 
+        // Adds a new header by Header object.
         public int addHeader(Header header, object defaultValue = null)
         {
 
@@ -186,7 +236,9 @@ namespace BazaDanych
             initColumnHeader(header, defaultValue);
             return 0;
         }
-        public int addNewHeader(String name, DataType dataType, int maxSize, object defaultValue = null)
+
+        // Constructs a new Header object & adds a new header.
+        public int addNewHeader(string name, DataType dataType, int maxSize, object defaultValue = null)
         {
 
             Header header = new Header(name, dataType, maxSize);
@@ -194,7 +246,9 @@ namespace BazaDanych
             initColumnHeader(header, defaultValue);
             return 0;
         }
-        public int removeHeader(String name)
+
+        // Removes header by name.
+        public int removeHeader(string name)
         {
 
             foreach (Header header in Headers)
@@ -208,12 +262,14 @@ namespace BazaDanych
             }
             return 1;
         }
+
+        // Removes header by Header object.
         public int removeHeader(Header header)
         {
             if (!Headers.Contains(header)) return -1;
-            List<List<object>> newRows = new List<List<object>>(rows);
+            List<List<object>> newRows = new List<List<object>>(Rows);
             int j = 0;
-            foreach (List<object> row in rows)
+            foreach (List<object> row in Rows)
             {
                 List<object> newRow = new List<object>(row);
                 int i = 0;
@@ -228,12 +284,13 @@ namespace BazaDanych
                 newRows[j] = newRow;
                 j++;
             }
-            rows = newRows;
+            Rows = newRows;
 
             Headers.Remove(header);
 
             return 1;
         }
+
 
         public void printHeader(bool brief = false)
         {
@@ -243,7 +300,7 @@ namespace BazaDanych
                 printSpacer();
                 foreach (Header header in Headers)
                 {
-                    Console.WriteLine("Header: " + header.Name);
+                    printf("Header: " + header.Name);
                 }
                 printSpacer();
                 return;
@@ -254,10 +311,10 @@ namespace BazaDanych
             int i = 0;
             foreach (Header header in Headers)
             {
-                Console.WriteLine("Header no. " + i);
-                Console.WriteLine("Name: " + header.Name);
-                Console.WriteLine("DataType: " + header.DataType);
-                Console.WriteLine("MaxSize: " + header.MaxSize);
+                printf("Header no. " + i);
+                printf("Name: " + header.Name);
+                printf("DataType: " + header.DataType);
+                printf("MaxSize: " + header.MaxSize);
                 i++;
             }
             printSpacer();
@@ -265,9 +322,10 @@ namespace BazaDanych
 
         public void printTableName()
         {
-            printLine("Table: " + Name);
+            printf("Table: " + Name);
         }
 
+        // A helper method to print the table.
         public void printTableSpacer(int type)
         {
             switch (type)
@@ -295,20 +353,21 @@ namespace BazaDanych
             switch (type)
             {
                 case 1:
-                    Console.WriteLine("┐");
+                    printf("┐");
                     break;
 
                 case 2:
-                    Console.WriteLine("┤");
+                    printf("┤");
                     break;
 
                 case 3:
-                    Console.WriteLine("┘");
+                    printf("┘");
                     break;
 
             }
         }
 
+        // Prints the table in console using fancy formatting.
         public void printTable()
         {
             printTableName();
@@ -317,7 +376,7 @@ namespace BazaDanych
             {
                 print($"│ {header.Name,-20} ");
             }
-            Console.WriteLine("│");
+            printf("│");
 
             foreach (Header header in Headers)
             {
@@ -325,11 +384,11 @@ namespace BazaDanych
                 print($"│ {combinedData,-20} ");
             }
 
-            Console.WriteLine("│");
+            printf("│");
 
             printTableSpacer(2);
 
-            foreach (List<object> row in rows)
+            foreach (List<object> row in Rows)
             {
                 int i = 0;
                 foreach (object value in row)
@@ -337,28 +396,48 @@ namespace BazaDanych
                     print($"│ {value,-20} ");
                     i++;
                 }
-                Console.WriteLine("│");
+                printf("│");
             }
 
             printTableSpacer(3);
         }
 
 
+
+
+        /* Search methods
+         *
+         * Those methods are used to manage values in rows.
+         *  These are similar & pretty much self-explanatory.
+         *   All the methods require some kind of a header value and a search keyword.
+         *   Multiple keyword methods require a variation of Dictionary<Header, object>.
+         *
+         *  SimpleDatabse supports the following operations:
+         *   Print the whole row by header value
+         *    Note that it's only a test method. 
+         *    Get* methods are preferred and should be used whenever willing to print a table.
+         *   Get the whole row header value(s)
+         *   Remove the whole row header value(s)
+         *   Set elements row by header value(s)
+         *   
+         */
+
+
         public void PrintRowByHeaderValue(Header header, object value)
         {
             if (!Headers.Contains(header))
             {
-                printLine(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                printError(ErrorType.HEADER);
                 return;
             }
-            printLine("Resulting rows with value '" + value.ToString() + "' in header '" + header.Name + "' in table '" + Name + "'");
+            printf("Resulting rows with value '" + value.ToString() + "' in header '" + header.Name + "' in table '" + Name + "'");
 
             printTableSpacer(1);
             foreach (Header header1 in Headers)
             {
                 print($"│ {header1.Name,-20} ");
             }
-            Console.WriteLine("│");
+            printf("│");
 
             foreach (Header header1 in Headers)
             {
@@ -366,11 +445,11 @@ namespace BazaDanych
                 print($"│ {combinedData,-20} ");
             }
 
-            Console.WriteLine("│");
+            printf("│");
 
             printTableSpacer(2);
 
-            foreach (List<object> row in rows)
+            foreach (List<object> row in Rows)
             {
                 int i = 0;
 
@@ -383,7 +462,7 @@ namespace BazaDanych
                         print($"│ {value1,-20} ");
                         i++;
                     }
-                    Console.WriteLine("│");
+                    printf("│");
                 }
             }
 
@@ -395,15 +474,18 @@ namespace BazaDanych
         {
             if (!Headers.Contains(header))
             {
-                printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                printDebugError(ErrorType.HEADER);
                 return null;
             }
             Dictionary<Header, List<object>> resultDict = new Dictionary<Header, List<object>>();
 
 
-            foreach (List<object> row in rows)
+            foreach (List<object> row in Rows)
             {
                 int i = 0;
+
+                // Note that row.Contains(value) may seem unnecessary there, but it's crucial
+                // for improving the search time in large tables.
 
                 if (row.Contains(value) && GetHeaderAt(row.IndexOf(value)) == header)
                 {
@@ -428,13 +510,13 @@ namespace BazaDanych
             {
                 if (!Headers.Contains(kvp.Key))
                 {
-                    printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                    printDebugError(ErrorType.HEADER);
                     return null;
                 }
             }
             Dictionary<Header, List<object>> resultDict = new Dictionary<Header, List<object>>();
 
-            foreach (List<object> row in rows)
+            foreach (List<object> row in Rows)
             {
 
                 int i = 0;
@@ -470,11 +552,11 @@ namespace BazaDanych
 
             if (!Headers.Contains(header))
             {
-                printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                printDebugError(ErrorType.HEADER);
                 return;
             }
-            List<List<object>> newRows = new List<List<object>>(rows);
-            foreach (List<object> row in rows)
+            List<List<object>> newRows = new List<List<object>>(Rows);
+            foreach (List<object> row in Rows)
             {
 
                 if (row.Contains(value) && GetHeaderAt(row.IndexOf(value)) == header)
@@ -483,7 +565,7 @@ namespace BazaDanych
                 }
             }
 
-            rows = newRows;
+            Rows = newRows;
 
 
         }
@@ -494,13 +576,13 @@ namespace BazaDanych
             {
                 if (!Headers.Contains(kvp.Key))
                 {
-                    printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                    printDebugError(ErrorType.HEADER);
                     return;
                 }
             }
 
-            List<List<object>> newRows = new List<List<object>>(rows);
-            foreach (List<object> row in rows)
+            List<List<object>> newRows = new List<List<object>>(Rows);
+            foreach (List<object> row in Rows)
             {
 
                 int i = 0;
@@ -515,19 +597,19 @@ namespace BazaDanych
 
             }
 
-            rows = newRows;
+            Rows = newRows;
         }
 
-        public int SetElementByHeaderValue(Header header, object value, Header destHeader, object newValue)
+        public int SetRowByHeaderValue(Header header, object value, Header destHeader, object newValue)
         {
             if (!Headers.Contains(header))
             {
-                printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                printDebugError(ErrorType.HEADER);
                 return -1;
             }
 
-            List<List<object>> newRows = new List<List<object>>(rows);
-            foreach (List<object> row in rows)
+            List<List<object>> newRows = new List<List<object>>(Rows);
+            foreach (List<object> row in Rows)
             {
                 List<object> newRow = new List<object>(row);
 
@@ -537,23 +619,23 @@ namespace BazaDanych
                 }
                 newRows[newRows.IndexOf(row)] = newRow;
             }
-            rows = newRows;
+            Rows = newRows;
             return 1;
 
 
         }
-        public int SetElementByHeaderValues(Dictionary<Header, object> headerValues, Dictionary<Header, object> destHeaderValues)
+        public int SetRowByHeaderValues(Dictionary<Header, object> headerValues, Dictionary<Header, object> destHeaderValues)
         {
             foreach (KeyValuePair<Header, object> kvp in headerValues)
             {
                 if (!Headers.Contains(kvp.Key))
                 {
-                    printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                    printDebugError(ErrorType.HEADER);
                     return -1;
                 }
             }
-            List<List<object>> newRows = new List<List<object>>(rows);
-            foreach (List<object> row in rows)
+            List<List<object>> newRows = new List<List<object>>(Rows);
+            foreach (List<object> row in Rows)
             {
                 List<object> newRow = new List<object>(row);
                 int i = 0;
@@ -576,11 +658,104 @@ namespace BazaDanych
 
             }
 
-            rows = newRows;
+            Rows = newRows;
 
             return 1;
         }
 
+
+        /* Write methods
+         *
+         * Those methods are used to write the table to a file.
+         *
+         *  SimpleDatabse supports serializing a Table object to a JSON file and deserializing it.
+         *  SimpleDatabase also allows to write a Table object to CSV file.
+         *   
+         */
+
+
+        public void Serialize(string filePath)
+        {
+            string tableToJson = JsonSerializer.Serialize(this, opts);
+            try
+            {
+                File.WriteAllText(filePath, tableToJson);
+            }
+            catch (Exception e)
+            {
+                printDebugError(ErrorType.JSON);
+                printDebug(e.Message);
+
+            }
+        }
+
+        public static Table Deserialize(string filePath)
+        {
+            try
+            {
+                string jsonFromFile = File.ReadAllText(filePath);
+                Table tableFromJson = JsonSerializer.Deserialize<Table>(jsonFromFile);
+                return tableFromJson;
+            }
+            catch (Exception e)
+            {
+                printDebugError(ErrorType.JSON);
+                printDebug(e.Message);
+            }
+            return null;
+        }
+
+
+
+        public void WriteToCsv(string filePath)
+        {
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                try
+                {
+                    WriteHeaders(writer);
+                    WriteRows(writer);
+                }
+                catch (Exception)
+                {
+                    printDebugError(ErrorType.CSV);
+                    return;
+                }
+            }
+
+            printDebug($"CSV exported at {filePath}");
+        }
+
+
+        // Those are the helper methods for WriteToCsv.
+        private void WriteHeaders(StreamWriter writer)
+        {
+            foreach (Header header in Headers)
+            {
+                writer.Write($"{header.Name} [{header.DataType}({header.MaxSize})]");
+                if (header != Headers[Headers.Count - 1])
+                {
+                    writer.Write(",");
+                }
+            }
+            writer.WriteLine();
+        }
+
+        private void WriteRows(StreamWriter writer)
+        {
+            foreach (List<object> row in Rows)
+            {
+                for (int i = 0; i < row.Count; i++)
+                {
+                    writer.Write(row[i]);
+                    if (i != row.Count - 1)
+                    {
+                        writer.Write(",");
+                    }
+                }
+                writer.WriteLine();
+            }
+        }
 
     }
 }

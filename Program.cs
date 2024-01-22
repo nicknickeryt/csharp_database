@@ -1,16 +1,17 @@
-﻿//TODO writing to file
-using static BazaDanych.Utils;
-namespace BazaDanych
+﻿using static SimpleDatabase.Utils;
+namespace SimpleDatabase
 {
     class Program
     {
         static void Main(string[] args)
         {
 
+
+            // Enable DB debug mode
             isDebugEnabled = true;
-            Console.WriteLine("hi, that's a test");
+            printf("Hi. That's a SimpleDatabase test.");
 
-
+            // Basics: add some headers, create table and db.
             Header id = new Header("ID", DataType.INT, 10);
             Header name = new Header("Name", DataType.STRING, 16);
             Header surname = new Header("Surname", DataType.STRING, 16);
@@ -25,14 +26,14 @@ namespace BazaDanych
             table.addHeader(surname);
             table.addHeader(isStillWorking);
 
-            //table.printHeader(true);
 
+            // Create example db and add a table to that db. Note that a table doesn't have to be in db.
             Database database = new Database("Testowa baza danych");
 
             database.AddTable(table);
 
 
-            //testy//
+            // Add some example data.
 
             table.AddRow(1, "Jan", "Kowalski", true);
 
@@ -40,13 +41,27 @@ namespace BazaDanych
 
             table.AddRow(2, "Alan", "Nowak", true);
 
-            //table.printColumns();
 
-            //table.printRows();
+            // Wrong data types
+            printDebugError(ErrorType.INTENTATIONAL);
+            table.AddRow("ąąąą", "Alan", 1, "sdsad");
+
+            // Wrong amount of data
+            printDebugError(ErrorType.INTENTATIONAL);
+            table.AddRow(2, "Alan", "S", true, true);
 
             table.printTable();
 
+            Header dummyHeader = new Header("dummy", DataType.STRING, 8);
 
+            table.addHeader(dummyHeader, "default");
+
+            printDebugError(ErrorType.INTENTATIONAL);
+            table.AddRow(2, "Alan", "Akshat", true, "zadługawartość");
+
+            table.printTable();
+
+            // Add another table and add to our db.
 
             Header id1 = new Header("ID", DataType.INT, 10);
             Header nazwa = new Header("Model", DataType.STRING, 16);
@@ -70,8 +85,9 @@ namespace BazaDanych
             table1.AddRow(3, "PZL-23 Sokół", 2004);
 
 
-            table1.printTable();
 
+            // Basic sorting by header example.
+            table1.printTable();
 
             table1.sortByHeader(nazwa, Table.Direction.ASC);
 
@@ -80,7 +96,7 @@ namespace BazaDanych
             table1.sortByHeader(id1, Table.Direction.DESC);
 
             table1.printTable();
-                        
+
             table1.sortByHeader(year, Table.Direction.ASC);
 
             table1.printTable();
@@ -90,9 +106,55 @@ namespace BazaDanych
             table1.printTable();
 
             // Try to get header out of range.
+            printDebugError(ErrorType.INTENTATIONAL);
             table1.GetHeaderAt(100);
 
-            /*table1.PrintRowByHeaderValue(year, 2004);
+
+            // Table & db serialize test.
+            string tableCsv = "./examples/testowa.csv";
+            string tableJson = "./examples/tableJson.json";
+            string dbJson = "./examples/dbJson.json";
+
+            table1.WriteToCsv(tableCsv);
+
+            table1.Serialize(tableJson);
+
+
+            Table table2 = Table.Deserialize(tableJson);
+
+            table2.printTable();
+
+            // Try wrong filename
+            printDebugError(ErrorType.INTENTATIONAL);
+            Table table3 = Table.Deserialize("wrongfilename");
+
+
+
+            database.printTables();
+            printf(database.Name);
+
+            database.Serialize(dbJson);
+
+
+            Database database1 = Database.Deserialize(dbJson);
+
+            database1.printTables();
+            printf(database1.Name);
+
+
+
+
+            /* More examples:
+             *
+             * print row by header value(s)
+             * get row by header value(s) 
+             * remove row by header value(s) 
+             * set row by header value(s) 
+             *
+            */
+
+            /*
+            table1.PrintRowByHeaderValue(year, 2004);
 
                 Dictionary<Header, List<object>> results = table1.GetRowByHeaderValue(year, 2004);
 
@@ -101,11 +163,11 @@ namespace BazaDanych
                 table.PrintRowByHeaderValue(isStillWorking, true);
 
                 foreach(object o in resultsEmployees[name]){
-                    printLine(o.ToString());
+                    printf(o.ToString());
                 }
 
                 foreach(object o in results[nazwa]){
-                    printLine(o.ToString());
+                    printf(o.ToString());
                 }
 
 
@@ -144,13 +206,14 @@ namespace BazaDanych
 
                 Header header = table.GetHeaderByName("hasSuperPowers");
 
-                //attempt to add wrogn data type
-                table.SetElementByHeaderValue(header, "WARTOSC domyslna", isStillWorking, "WARTOSC nowa");
+                // Attempt to add wrong data type
+                printDebugError(ErrorType.INTENTATIONAL);
+                table.SetRowByHeaderValue(header, "WARTOSC domyslna", isStillWorking, "WARTOSC nowa");
 
                 table.printTable();
 
-                //now add properly
-                table.SetElementByHeaderValue(header, "WARTOSC domyslna", header, true);
+                // Now add properly
+                table.SetRowByHeaderValue(header, "WARTOSC domyslna", header, true);
 
                 table.printTable();
 
@@ -160,10 +223,11 @@ namespace BazaDanych
                     { isStillWorking, true }
                 };
 
+
                 Dictionary<Header, List<object>> resultsEmployees2 = table.GetRowByHeaderValues(var1);
 
                 foreach(object o in resultsEmployees2[name]){
-                    printLine(o.ToString());
+                    printf(o.ToString());
                 }
 
                 table.printTable();
@@ -172,11 +236,31 @@ namespace BazaDanych
 
                 table.printTable();
 
-                 Dictionary<Header, List<object>> resultsEmployees3 = table.GetRowByHeaderValues(var1);
+                Dictionary<Header, List<object>> resultsEmployees3 = table.GetRowByHeaderValues(var1);
 
                 foreach(object o in resultsEmployees3[name]){
-                    printLine(o.ToString());
+                    printf(o.ToString());
                 }
+                
+
+
+
+                // Set row elements by multiple values
+                table.printTable();
+
+                Dictionary<Header, object> findSet = new Dictionary<Header, object>(){
+                { name, "Adrian" },
+                { isStillWorking, true }
+                };
+                
+                Dictionary<Header, object> toSet = new Dictionary<Header, object>(){
+                { id, 89 },
+                { isStillWorking, false }
+                };
+
+                table.SetRowByHeaderValues(findSet, toSet);
+
+                table.printTable();
                 */
 
         }
