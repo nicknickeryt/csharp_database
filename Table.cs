@@ -1,9 +1,4 @@
 //TODO: edit (select elements/rows), sort, better row and data handling
-<<<<<<< HEAD
-using System.Reflection.PortableExecutable;
-using System.Runtime.InteropServices.Marshalling;
-=======
->>>>>>> 6f2a3fa (something)
 using static BazaDanych.Utils;
 namespace BazaDanych
 {
@@ -16,20 +11,19 @@ namespace BazaDanych
             DESC
         }
 
-        //private Dictionary<Header, List<Object>> columns = new Dictionary<Header, List<Object>>();
         private List<List<Object>> rows = new List<List<Object>>();
 
 
         private List<Object> getColumn(Header header)
         {
-            //TODO: MUDI byc sprawdzenie tu i wszedzie indziej czy podany HEADER istnieje w aktualnej tabeli, w liscie headerow
             if (!Headers.Contains(header))
             {
+                printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
                 return null;
             }
             List<Object> column = new List<Object>();
             int i = Headers.IndexOf(header);
-            
+
             foreach (List<Object> row in rows)
             {
                 column.Add(row[i]);
@@ -42,13 +36,13 @@ namespace BazaDanych
 
         public void sortByHeader(Header header, Direction direction)
         {
-            if(!Headers.Contains(header))
+            if (!Headers.Contains(header))
             {
                 return;
             }
             List<Object> sortId = getColumn(header);
 
-            
+
             switch (direction)
             {
                 case Direction.ASC:
@@ -59,7 +53,7 @@ namespace BazaDanych
                     break;
 
             }
-        
+
             List<List<Object>> newRows = new List<List<Object>>();
 
             rows = rows.OrderBy(x => x[Headers.IndexOf(header)]).ToList();
@@ -75,13 +69,12 @@ namespace BazaDanych
 
         public List<Header> Headers = new List<Header>();
 
-        //TODO: better error handling, row remove, honour maxSize
         public int AddRow(params Object[] values)
         {
             if (Headers.Count != values.Count())
             {
 
-                printDebug("Wrong amount of data.");
+                printDebug(getErrMsg(ErrorType.WRONG_AMOUNT_DATA));
                 return -1;
             }
 
@@ -91,7 +84,7 @@ namespace BazaDanych
             {
                 if (!checkDataType(Headers[i], value))
                 {
-                    printDebug("Wrong datatype.");
+                    printDebug(getErrMsg(ErrorType.WRONG_DATA_TYPE));
                     return -1;
                 }
                 i++;
@@ -120,9 +113,14 @@ namespace BazaDanych
             Name = name;
         }
 
-        //FIXME ale to jest chamskie XD (add try catch etc.)
+
         public Header GetHeaderAt(int index)
         {
+            if (index >= Headers.Count())
+            {
+                printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                return null;
+            }
             return Headers[index];
         }
         public Header GetHeaderByName(string name)
@@ -131,6 +129,8 @@ namespace BazaDanych
             {
                 if (header.Name == name) return header;
             }
+
+            printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
             return null;
         }
 
@@ -348,8 +348,8 @@ namespace BazaDanych
         {
             if (!Headers.Contains(header))
             {
-                printLine("Head not found."); 
-                return; 
+                printLine(getErrMsg(ErrorType.HEADER_NOT_FOUND));
+                return;
             }
             printLine("Resulting rows with value '" + value.ToString() + "' in header '" + header.Name + "' in table '" + Name + "'");
 
@@ -395,6 +395,7 @@ namespace BazaDanych
         {
             if (!Headers.Contains(header))
             {
+                printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
                 return null;
             }
             Dictionary<Header, List<object>> resultDict = new Dictionary<Header, List<object>>();
@@ -423,10 +424,11 @@ namespace BazaDanych
 
         public Dictionary<Header, List<object>> GetRowByHeaderValues(Dictionary<Header, object> headerValues)
         {
-            foreach(KeyValuePair<Header, object> kvp in headerValues)
+            foreach (KeyValuePair<Header, object> kvp in headerValues)
             {
                 if (!Headers.Contains(kvp.Key))
                 {
+                    printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
                     return null;
                 }
             }
@@ -468,6 +470,7 @@ namespace BazaDanych
 
             if (!Headers.Contains(header))
             {
+                printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
                 return;
             }
             List<List<object>> newRows = new List<List<object>>(rows);
@@ -491,6 +494,7 @@ namespace BazaDanych
             {
                 if (!Headers.Contains(kvp.Key))
                 {
+                    printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
                     return;
                 }
             }
@@ -516,10 +520,11 @@ namespace BazaDanych
 
         public int SetElementByHeaderValue(Header header, object value, Header destHeader, object newValue)
         {
-                if (!Headers.Contains(header))
-                {
+            if (!Headers.Contains(header))
+            {
+                printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
                 return -1;
-                }
+            }
 
             List<List<object>> newRows = new List<List<object>>(rows);
             foreach (List<object> row in rows)
@@ -543,6 +548,7 @@ namespace BazaDanych
             {
                 if (!Headers.Contains(kvp.Key))
                 {
+                    printDebug(getErrMsg(ErrorType.HEADER_NOT_FOUND));
                     return -1;
                 }
             }

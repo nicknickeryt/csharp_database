@@ -84,18 +84,14 @@ namespace BazaDanych
             table1.sortByHeader(year, Table.Direction.ASC);
 
             table1.printTable();
-<<<<<<< HEAD
-=======
-
-
-            database.printTables();
-            
-        /*table1.PrintRowByHeaderValue(year, 2004);
->>>>>>> 6f2a3fa (something)
 
             table1.sortByHeader(id, Table.Direction.DESC);
 
             table1.printTable();
+
+            // Try to get header out of range.
+            table1.GetHeaderAt(100);
+
             /*table1.PrintRowByHeaderValue(year, 2004);
 
                 Dictionary<Header, List<object>> results = table1.GetRowByHeaderValue(year, 2004);

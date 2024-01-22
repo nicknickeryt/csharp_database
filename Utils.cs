@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using Microsoft.VisualBasic;
 
 namespace BazaDanych
 {
@@ -11,6 +12,23 @@ namespace BazaDanych
         public static void printSpacer()
         {
             Console.WriteLine("> ----------------------------------------");
+        }
+
+
+        public enum ErrorType {
+            HEADER_NOT_FOUND,
+            WRONG_AMOUNT_DATA,
+            WRONG_DATA_TYPE
+        }
+
+        private static Dictionary<ErrorType, string> ErrorMessages = new Dictionary<ErrorType, string>(){
+            { ErrorType.HEADER_NOT_FOUND, "Header not found."},
+            {ErrorType.WRONG_AMOUNT_DATA, "Wrong amount of data."},
+            {ErrorType.WRONG_DATA_TYPE, "Wrong data type."}
+        };
+
+        public static string getErrMsg(ErrorType errorType){
+            return ErrorMessages[errorType];
         }
 
         public static DataType getDataType(Object o){
