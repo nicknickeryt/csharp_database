@@ -22,13 +22,10 @@ using static BazaDanych.Utils;
             int i = 0;
             foreach (Table table in tables)
             {
-                printLine("Table: " + table.Name);
-            
                 table.printTable();
 
                 i++;
             }
-            printSpacer();
 
         }
 
