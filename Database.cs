@@ -1,29 +1,34 @@
 // TODO write to file, search, sort, edit idk
-namespace BazaDanych
+using static BazaDanych.Utils;
+    namespace BazaDanych
 {
     class Database
     {
 
         private List<Table> tables = new List<Table>();
 
-        public Database()
-        {
+        public String Name {
+            get;set;
+        }
 
+        public Database(String name)
+        {
+            Name = name;
         }
 
         public void printTables()
         {
-            Utils.printSpacer();
+            printSpacer();
             int i = 0;
             foreach (Table table in tables)
             {
-                Console.WriteLine("Table no. " + i);
-                Console.WriteLine("Name: " + table.Name);
-                Console.WriteLine("Size: " + table.Size());
+                printLine("Table: " + table.Name);
+            
+                table.printTable();
 
                 i++;
             }
-            Utils.printSpacer();
+            printSpacer();
 
         }
 

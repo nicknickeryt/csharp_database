@@ -1,4 +1,4 @@
-﻿//TODO add class for data cell
+﻿//TODO writing to file
 using static BazaDanych.Utils;
 namespace BazaDanych
 {
@@ -7,7 +7,7 @@ namespace BazaDanych
         static void Main(string[] args)
         {
 
-            Utils.isDebugEnabled = true;
+            isDebugEnabled = true;
             Console.WriteLine("hi, that's a test");
 
 
@@ -27,7 +27,7 @@ namespace BazaDanych
 
             //table.printHeader(true);
 
-            Database database = new Database();
+            Database database = new Database("Testowa baza danych");
 
             database.AddTable(table);
 
@@ -84,6 +84,14 @@ namespace BazaDanych
             table1.sortByHeader(year, Table.Direction.ASC);
 
             table1.printTable();
+<<<<<<< HEAD
+=======
+
+
+            database.printTables();
+            
+        /*table1.PrintRowByHeaderValue(year, 2004);
+>>>>>>> 6f2a3fa (something)
 
             table1.sortByHeader(id, Table.Direction.DESC);
 

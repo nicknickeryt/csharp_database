@@ -1,6 +1,9 @@
 //TODO: edit (select elements/rows), sort, better row and data handling
+<<<<<<< HEAD
 using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices.Marshalling;
+=======
+>>>>>>> 6f2a3fa (something)
 using static BazaDanych.Utils;
 namespace BazaDanych
 {
