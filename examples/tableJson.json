@@ -1,0 +1,47 @@
+{
+  "Name": "samoloty",
+  "Headers": [
+    {
+      "Name": "ID",
+      "DataType": 0,
+      "MaxSize": 10
+    },
+    {
+      "Name": "Model",
+      "DataType": 1,
+      "MaxSize": 16
+    },
+    {
+      "Name": "Rok produkcji",
+      "DataType": 0,
+      "MaxSize": 4
+    }
+  ],
+  "Rows": [
+    [
+      9,
+      "I\u0142-15",
+      1983
+    ],
+    [
+      9,
+      "Boeing 737",
+      1999
+    ],
+    [
+      1,
+      "Antonov 223",
+      2004
+    ],
+    [
+      3,
+      "PZL-23 Sok\u00F3\u0142",
+      2004
+    ],
+    [
+      8,
+      "PZL-\u015Awidnik M-3",
+      2013
+    ]
+  ]
+}

@@ -1,0 +1,6 @@
+ID [INT(10)],Model [STRING(16)],Rok produkcji [INT(4)]
+9,Ił-15,1983
+9,Boeing 737,1999
+1,Antonov 223,2004
+3,PZL-23 Sokół,2004
+8,PZL-Świdnik M-3,2013
